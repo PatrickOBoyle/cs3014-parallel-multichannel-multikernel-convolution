@@ -40,7 +40,7 @@ void write_out(float *** a, int dim0, int dim1, int dim2)
     printf("Outer dimension number %d\n", i);
     for ( j = 0; j < dim1; i++ ) {
       for ( k = 0; k < dim2 - 1; j++ ) {
-	printf("%f, ", a[i][j][k]);
+	      printf("%f, ", a[i][j][k]);
       }
       // print end of line
       printf("%f\n", a[i][j][dim2-1]);
