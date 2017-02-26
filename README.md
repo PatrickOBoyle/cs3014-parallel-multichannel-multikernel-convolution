@@ -1,8 +1,6 @@
-## cs3014-parallel-multichannel-multikernel-convolution
+##CS3014 Lab 1: Parallel multichannel multikernel convolution
 
-#CS3014 Lab 1: Parallel multichannel multikernel convolution
-
-21st February 2017
+###21st February 2017
 
 Modern deep neural networks (DNNs) are one of the most successful
 types of artificial intelligence. There are many artificial
