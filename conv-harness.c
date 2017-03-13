@@ -8,6 +8,13 @@
    Author: David Gregg
    Date:   February 2017
 
+
+   Version 1.4 : Modified the random generator to reduce the range
+                 of generated values;
+                 Changed the summation in the checking code from
+                 float to double to try to bring the checked value
+                 closer to the "true" value
+
    Version 1.3 : Fixed which loop variables were being incremented
                  in write_out();
                  Fixed dimensions of output and control_output 
@@ -126,9 +133,9 @@ struct timeval seedtime;
   srandom(seed);
 
   /* fill the matrix with random numbers */
-  const int range = 1 << 16; // 2^16
-  const int bias = 1 << 12; // 2^12
-  float offset = 4.0;
+  const int range = 1 << 12; // 2^12
+  const int bias = 1 << 16; // 2^16
+  float offset = 0.0;
   for ( i = 0; i < dim0; i++ ) {
     for ( j = 0; j < dim1; j++ ) {
       for ( k = 0; k < dim2; k++ ) {
@@ -201,7 +208,7 @@ void multichannel_conv(float *** image, float **** kernels, float *** output,
   for ( m = 0; m < nkernels; m++ ) {
     for ( w = 0; w < width; w++ ) {
       for ( h = 0; h < height; h++ ) {
-        float sum = 0.0;
+        double sum = 0.0;
         for ( c = 0; c < nchannels; c++ ) {
           for ( x = 0; x < kernel_order; x++) {
             for ( y = 0; y < kernel_order; y++ ) {
@@ -222,6 +229,10 @@ void team_conv(float *** image, float **** kernels, float *** output,
 {
   // this call here is just dummy code
   // insert your own code instead
+  // up to 64 threads
+  // size of the matrix makes a difference - if its small enough sequential code is faster
+  // also, if you split it up to much, then it slows down
+  // thread starting from the outer loop
   multichannel_conv(image, kernels, output, width,
                     height, nchannels, nkernels, kernel_order);
 }
