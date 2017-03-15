@@ -239,7 +239,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
 
 
   
-  #pragma omp parrellel for
+  
   for ( w = 0; w < width; w++ ) 
   {
     for ( h = 0; h < height; h++ ) 
