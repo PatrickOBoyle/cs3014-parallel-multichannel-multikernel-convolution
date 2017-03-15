@@ -239,7 +239,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
 
 
   
-  
+  #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels)
   for ( w = 0; w < width; w++ ) 
   {
     for ( h = 0; h < height; h++ ) 
@@ -259,7 +259,6 @@ void team_conv(float *** image, float **** kernels, float *** output,
           }
           output[m][w][h] = sum;
         }
-      
       }
     }
   }
