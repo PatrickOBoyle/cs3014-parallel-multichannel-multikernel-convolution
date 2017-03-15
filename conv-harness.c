@@ -205,6 +205,7 @@ void multichannel_conv(float *** image, float **** kernels, float *** output,
 {
   int h, w, x, y, c, m;
 
+
   for ( m = 0; m < nkernels; m++ ) {
     for ( w = 0; w < width; w++ ) {
       for ( h = 0; h < height; h++ ) {
@@ -233,8 +234,35 @@ void team_conv(float *** image, float **** kernels, float *** output,
   // size of the matrix makes a difference - if its small enough sequential code is faster
   // also, if you split it up to much, then it slows down
   // thread starting from the outer loop
-  multichannel_conv(image, kernels, output, width,
-                    height, nchannels, nkernels, kernel_order);
+  printf("starting parrellelized version\n");
+  int h, w, x, y, c, m;
+
+
+  
+  #pragma omp parrellel for
+  for ( w = 0; w < width; w++ ) 
+  {
+    for ( h = 0; h < height; h++ ) 
+    {
+      for ( m = 0; m < nkernels; m++ ) 
+      {
+        double sum = 0.0;
+        for ( c = 0; c < nchannels; c++ ) 
+        {
+
+          for ( x = 0; x < kernel_order; x++) 
+          {
+            for ( y = 0; y < kernel_order; y++ ) 
+            {
+              sum += image[w+x][h+y][c] * kernels[m][c][x][y];
+            }
+          }
+          output[m][w][h] = sum;
+        }
+      
+      }
+    }
+  }
 }
 
 int main(int argc, char ** argv)
