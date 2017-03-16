@@ -205,7 +205,7 @@ void check_result(float *** result, float *** control,
             sum_abs_diff, EPSILON);
   }
   else {
-    printf("COMMENT: sum of absolute differences (%f)  within acceptable range (%f)\n", sum_abs_diff, EPSILON);
+    //printf("COMMENT: sum of absolute differences (%f)  within acceptable range (%f)\n", sum_abs_diff, EPSILON);
   }
 }
 
@@ -245,7 +245,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
   // size of the matrix makes a difference - if its small enough sequential code is faster
   // also, if you split it up to much, then it slows down
   // thread starting from the outer loop
-  printf("starting parrellelized version\n");
+  // printf("starting parrellelized version\n");
   int h, w, x, y, c, m;
 
 
@@ -347,7 +347,11 @@ float *** image, **** kernels, *** output;
 
   relative_speed = control_time / mul_time;
 
-  printf("\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f\n\n", control_time, mul_time, relative_speed);
+  printf("\nArgs: %d %d %d %d %d\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f\n\n",
+  atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]),
+  control_time,
+  mul_time,
+  relative_speed);
 
   DEBUGGING(write_out(output, nkernels, width, height));
 
