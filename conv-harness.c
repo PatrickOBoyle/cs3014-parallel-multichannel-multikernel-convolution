@@ -347,7 +347,7 @@ float *** image, **** kernels, *** output;
 
   relative_speed = control_time / mul_time;
 
-  printf("\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f", control_time, mul_time, relative_speed);
+  printf("\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f\n\n", control_time, mul_time, relative_speed);
 
   DEBUGGING(write_out(output, nkernels, width, height));
 
