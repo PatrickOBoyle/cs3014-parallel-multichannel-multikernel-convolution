@@ -17,15 +17,26 @@
 
    Version 1.3 : Fixed which loop variables were being incremented
                  in write_out();
-                 Fixed dimensions of output and control_output 
+                 Fixed dimensions of output and control_output
                  matrices in main function
 
-   Version 1.2 : Changed distribution of test data to (hopefully) 
+   Version 1.2 : Changed distribution of test data to (hopefully)
                  eliminate random walk of floating point error;
                  Also introduced checks to restrict kernel-order to
                  a small set of values
 
    Version 1.1 : Fixed bug in code to create 4d matrix
+*/
+
+
+
+/*
+  POTENTIAL SPEEDUPS
+  - Cache workings
+  - Input checking and using gregg code
+  -
+
+
 */
 
 #include <stdio.h>
@@ -70,7 +81,7 @@ float **** new_empty_4d_matrix(int dim0, int dim1, int dim2, int dim3)
   float * mat3 = malloc(dim0 * dim1 * dim2 *dim3 * sizeof(float));
   int i, j, k;
 
-  
+
   for ( i = 0; i < dim0; i++ ) {
     result[i] = &(mat1[i*dim1]);
     for ( j = 0; j < dim1; j++ ) {
@@ -178,7 +189,7 @@ void check_result(float *** result, float *** control,
   const double EPSILON = 0.0625;
 
   //printf("SAD\n");
-  
+
   for ( i = 0; i < dim0; i++ ) {
     for ( j = 0; j < dim1; j++ ) {
       for ( k = 0; k < dim2; k++ ) {
@@ -238,21 +249,21 @@ void team_conv(float *** image, float **** kernels, float *** output,
   int h, w, x, y, c, m;
 
 
-  
+
   #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels)
-  for ( w = 0; w < width; w++ ) 
+  for ( w = 0; w < width; w++ )
   {
-    for ( h = 0; h < height; h++ ) 
+    for ( h = 0; h < height; h++ )
     {
-      for ( m = 0; m < nkernels; m++ ) 
+      for ( m = 0; m < nkernels; m++ )
       {
         double sum = 0.0;
-        for ( c = 0; c < nchannels; c++ ) 
+        for ( c = 0; c < nchannels; c++ )
         {
 
-          for ( x = 0; x < kernel_order; x++) 
+          for ( x = 0; x < kernel_order; x++)
           {
-            for ( y = 0; y < kernel_order; y++ ) 
+            for ( y = 0; y < kernel_order; y++ )
             {
               sum += image[w+x][h+y][c] * kernels[m][c][x][y];
             }
@@ -269,7 +280,7 @@ int main(int argc, char ** argv)
   //float image[W][H][C];
   //float kernels[M][C][K][K];
   //float output[M][W][H];
-  
+
 float *** image, **** kernels, *** output;
   float *** control_output;
   long long mul_time;
@@ -308,22 +319,31 @@ float *** image, **** kernels, *** output;
 
   //DEBUGGING(write_out(A, a_dim1, a_dim2));
 
+  /* record starting time of David's code*/
+  gettimeofday(&start_time_control, NULL);
+
   /* use a simple multichannel convolution routine to produce control result */
   multichannel_conv(image, kernels, control_output, width,
                     height, nchannels, nkernels, kernel_order);
+
+  /* record finishing time */
+  gettimeofday(&stop_time_control, NULL);
+
+  control_time = (stop_time_control.tv_sec - start_time_control.tv_sec) * 1000000L +
+    (stop_time_control.tv_usec - start_time_control.tv_usec);
 
   /* record starting time of team's code*/
   gettimeofday(&start_time, NULL);
 
   /* perform student team's multichannel convolution */
-  team_conv(image, kernels, output, width,
-                    height, nchannels, nkernels, kernel_order);
+  team_conv(image, kernels, output, width, height, nchannels, nkernels, kernel_order);
 
   /* record finishing time */
   gettimeofday(&stop_time, NULL);
-  mul_time = (stop_time.tv_sec - start_time.tv_sec) * 1000000L +
-    (stop_time.tv_usec - start_time.tv_usec);
-  printf("Team conv time: %lld microseconds\n", mul_time);
+
+  mul_time = (stop_time.tv_sec - start_time.tv_sec) * 1000000L + (stop_time.tv_usec - start_time.tv_usec);
+
+  printf("Control time: %lld microseconds\nTeam conv time: %lld microseconds\n", control_time, mul_time);
 
   DEBUGGING(write_out(output, nkernels, width, height));
 
