@@ -283,7 +283,7 @@ int main(int argc, char ** argv)
 
 float *** image, **** kernels, *** output;
   float *** control_output;
-  long long mul_time;
+  long long control_time, mul_time;
   int width, height, kernel_order, nchannels, nkernels;
   struct timeval start_time;
   struct timeval stop_time;
