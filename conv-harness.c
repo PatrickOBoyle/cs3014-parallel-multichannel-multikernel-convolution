@@ -288,6 +288,8 @@ float *** image, **** kernels, *** output;
   struct timeval start_time, start_time_control;
   struct timeval stop_time, stop_time_control;
 
+  double relative_speed;
+
   if ( argc != 6 ) {
     fprintf(stderr, "Usage: conv-harness <image_width> <image_height> <kernel_order> <number of channels> <number of kernels>\n");
     exit(1);
@@ -343,7 +345,9 @@ float *** image, **** kernels, *** output;
 
   mul_time = (stop_time.tv_sec - start_time.tv_sec) * 1000000L + (stop_time.tv_usec - start_time.tv_usec);
 
-  printf("Control time: %lld microseconds\nTeam conv time: %lld microseconds\n", control_time, mul_time);
+  relative_speed = control_time / mul_time;
+
+  printf("\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f", control_time, mul_time, relative_speed);
 
   DEBUGGING(write_out(output, nkernels, width, height));
 
