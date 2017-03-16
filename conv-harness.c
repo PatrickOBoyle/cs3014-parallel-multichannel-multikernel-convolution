@@ -285,8 +285,8 @@ float *** image, **** kernels, *** output;
   float *** control_output;
   long long control_time, mul_time;
   int width, height, kernel_order, nchannels, nkernels;
-  struct timeval start_time;
-  struct timeval stop_time;
+  struct timeval start_time, start_time_control;
+  struct timeval stop_time, stop_time_control;
 
   if ( argc != 6 ) {
     fprintf(stderr, "Usage: conv-harness <image_width> <image_height> <kernel_order> <number of channels> <number of kernels>\n");
