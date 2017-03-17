@@ -1,6 +1,6 @@
 from subprocess import call
 
-call(["gcc", "-O3", "-fopenmp", "-msse4", "conv-harness.c"])
+call(["gcc-6", "-O3", "-fopenmp", "-msse4", "conv-harness.c"])
 call(["echo", "GCC finished"])
 
 call(["echo", "Running 100x100 tests..."])
@@ -8,6 +8,12 @@ call(["./a.out", "100", "100", "1", "1", "1"])
 call(["./a.out", "100", "100", "1", "3", "3"])
 call(["./a.out", "100", "100", "3", "3", "3"])
 call(["./a.out", "100", "100", "3", "10", "10"])
+
+call(["echo", "Running 300x300 tests..."])
+call(["./a.out", "300", "300", "1", "1", "1"])
+call(["./a.out", "300", "300", "1", "3", "3"])
+call(["./a.out", "300", "300", "3", "3", "3"])
+call(["./a.out", "300", "300", "3", "10", "10"])
 
 call(["echo", "Running 500x500 tests..."])
 call(["./a.out", "500", "500", "3", "10", "10"])
