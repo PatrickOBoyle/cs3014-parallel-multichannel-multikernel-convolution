@@ -253,7 +253,6 @@ void team_conv(float *** image, float **** kernels, float *** output,
   #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) if(width * height > 50000)
   for ( w = 0; w < width; w++ )
   {
-    #pragma omp parallel for private(h, m, c, x, y) shared(output, image, kernels)
     for ( h = 0; h < height; h++ )
     {
       for ( m = 0; m < nkernels; m++ )
@@ -346,7 +345,7 @@ float *** image, **** kernels, *** output;
 
   mul_time = (stop_time.tv_sec - start_time.tv_sec) * 1000000L + (stop_time.tv_usec - start_time.tv_usec);
 
-  relative_speed = control_time / mul_time;
+  relative_speed = (double)control_time / (double)mul_time;
 
   printf("\nArgs: %d %d %d %d %d\nControl time: %lld microseconds\nTeam conv time: %lld microseconds\nSpeed up: %f\n\n",
   atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]),
