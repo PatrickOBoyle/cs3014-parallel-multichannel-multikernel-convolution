@@ -354,8 +354,8 @@ void team_conv(float *** image, float **** kernels, float *** output,
                 sum += newImage[c][w+x][h+y] * kernels[m][c][x][y];
               }
             }
-            output[m][w][h] = sum;
           }
+          output[m][w][h] = sum;
         }
       }
     }
