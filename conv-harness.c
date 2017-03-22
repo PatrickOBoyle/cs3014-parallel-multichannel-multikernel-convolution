@@ -259,6 +259,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
 
   //if nchannels >= 4 reoder kernels to have channels as the lowest order index to vectorize
   if(nchannels >= 4){
+    printf("vectorizing on nchannels\n");
     int i, j, k, l;
     float **** newKernels = gen_random_4d_matrix(nkernels, nchannels, kernel_order, kernel_order);
     #pragma omp parallel for private(i, k, j, l) collapse(4)
@@ -313,6 +314,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
       }
     }
   } else{ //otherwise parrellize on nkernels
+    printf("vectorizing on image\n");
     int i, j, k;
     float *** newImage = gen_random_3d_matrix(width+kernel_order, height + kernel_order, nchannels);
     #pragma omp parallel for private(i, k, j) collapse(3)
