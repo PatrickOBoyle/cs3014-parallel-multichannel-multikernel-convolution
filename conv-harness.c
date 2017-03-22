@@ -304,7 +304,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
               {
                 for ( y = 0; y < kernel_order; y++ )
                 {
-                  sum += image[w+x][h+y][c] * kernels[m][x][y][c];
+                  sum += image[w+x][h+y][c] * newKernels[m][x][y][c];
                 }
               }
             }
@@ -352,7 +352,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
 
             for ( y = 0; y < kernel_order; y++ )
             {
-              sum += image[c][w+x][h+y] * kernels[m][c][x][y];
+              sum += newImage[c][w+x][h+y] * kernels[m][c][x][y];
             }
 
             output[m][w][h] = sum;
