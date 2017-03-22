@@ -298,18 +298,18 @@ void team_conv(float *** image, float **** kernels, float *** output,
                 sum += hsum_ps_sse3(sum4);
               }
             }
-            for(;c < nchannels; c++)
+          }
+          for(;c < nchannels; c++)
+          {
+            for ( x = 0; x < kernel_order; x++)
             {
-              for ( x = 0; x < kernel_order; x++)
+              for ( y = 0; y < kernel_order; y++ )
               {
-                for ( y = 0; y < kernel_order; y++ )
-                {
-                  sum += image[w+x][h+y][c] * newKernels[m][x][y][c];
-                }
+                sum += image[w+x][h+y][c] * newKernels[m][x][y][c];
               }
             }
-            output[m][w][h] = sum;
           }
+          output[m][w][h] = sum;
         }
       }
     }
