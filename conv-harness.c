@@ -281,9 +281,9 @@ void team_conv(float *** image, float **** kernels, float *** output,
     #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
     for ( m = 0; m < nkernels; m++ )
     {
-      for ( h = 0; h < height; h++ )
+      for ( w = 0; w < height; w++ )
       {
-        for ( w = 0; w < width; w++ )
+        for ( h = 0; h < width; h++ )
         {
           double sum = 0.0;
           for ( c = 0; c < nchannels; c+=4 )
@@ -332,9 +332,9 @@ void team_conv(float *** image, float **** kernels, float *** output,
     #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
     for ( m = 0; m < nkernels; m++ )
     {
-      for ( h = 0; h < height; h++ )
+      for ( w = 0; w < height; w++ )
       {
-        for ( w = 0; w < width; w++ )
+        for ( h = 0; h < width; h++ )
         {
           double sum = 0.0;
           for ( c = 0; c < nchannels; c+=4 )
