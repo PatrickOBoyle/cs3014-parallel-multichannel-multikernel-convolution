@@ -1,6 +1,6 @@
 from subprocess import call
 
-call(["gcc", "-O3", "-fopenmp", "-msse4", "conv-harness.c"])
+call(["gcc", "-O3", "-fopenmp", "ftree-vectorize", "-msse4", "conv-harness.c"])
 call(["echo", "GCC finished"])
 
 call(["echo", "Running tests..."])
