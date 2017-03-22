@@ -45,6 +45,7 @@
 #include <assert.h>
 #include <omp.h>
 #include <math.h>
+#include <x86intrin.h>
 
 /* the following two definitions of DEBUGGING control whether or not
    debugging information is written out. To put the program into
@@ -53,6 +54,14 @@
 /* to stop the printing of debugging information, use the following line: */
 #define DEBUGGING(_x)
 
+//found at: http://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-float-vector-sum-on-x86/35270026#35270026
+float hsum_ps_sse3(__m128 v) {
+    __m128 shuf = _mm_movehdup_ps(v);        // broadcast elements 3,1 to 2,0
+    __m128 sums = _mm_add_ps(v, shuf);
+    shuf        = _mm_movehl_ps(shuf, sums); // high half -> low half
+    sums        = _mm_add_ss(sums, shuf);
+    return        _mm_cvtss_f32(sums);
+}
 
 /* write 3d matrix to stdout */
 void write_out(float *** a, int dim0, int dim1, int dim2)
@@ -248,31 +257,112 @@ void team_conv(float *** image, float **** kernels, float *** output,
   // printf("starting parrellelized version\n");
   int h, w, x, y, c, m;
 
-
-
-  #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
-  for ( m = 0; m < nkernels; m++ )
-  {
-    for ( h = 0; h < height; h++ )
+  //if nchannels >= 4 reoder kernels to have channels as the lowest order index to vectorize
+  if(nchannels >= 4){
+    int i, j, k, l;
+    float **** newKernels = gen_random_4d_matrix(nkernels, nchannels, kernel_order, kernel_order);
+    #pragma omp parallel for private(i, k, j, l) collapse(4)
+    for( i = 0; i < nkernels; i++)
     {
-      for ( w = 0; w < width; w++ )
+      for( j = 0; j < nchannels; j++)
       {
-        double sum = 0.0;
-        for ( c = 0; c < nchannels; c++ )
+        for( k = 0; k < kernel_order; k++)
         {
-          for ( x = 0; x < kernel_order; x++)
+          for( l = 0; l < kernel_order; l++ )
           {
-            for ( y = 0; y < kernel_order; y++ )
-            {
-              sum += image[w+x][h+y][c] * kernels[m][c][x][y];
-            }
+            newKernels[i][k][l][j] = kernels[i][j][k][l];
           }
-          output[m][w][h] = sum;
         }
       }
     }
+
+
+    #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
+    for ( m = 0; m < nkernels; m++ )
+    {
+      for ( h = 0; h < height; h++ )
+      {
+        for ( w = 0; w < width; w++ )
+        {
+          double sum = 0.0;
+          for ( c = 0; c < nchannels; c+=4 )
+          {
+            for ( x = 0; x < kernel_order; x++)
+            {
+              for ( y = 0; y < kernel_order; y++ )
+              {
+                __m128 img = _mm_loadu_ps(&image[w+x][h+y][c]);
+                __m128 ker = _mm_loadu_ps(&kernels[m][x][y][c]);
+                __m128 sum4 = _mm_mul_ps(img, ker);
+                sum += hsum_ps_sse3(sum4);
+              }
+            }
+            for(;c < nchannels; c++)
+            {
+              for ( x = 0; x < kernel_order; x++)
+              {
+                for ( y = 0; y < kernel_order; y++ )
+                {
+                  sum += image[w+x][h+y][c] * kernels[m][x][y][c];
+                }
+              }
+            }
+            output[m][w][h] = sum;
+          }
+        }
+      }
+    }
+  } else{ //otherwise parrellize on nkernels
+    int i, j, k;
+    float *** newImage = gen_random_3d_matrix(width+kernel_order, height + kernel_order, nchannels);
+    #pragma omp parallel for private(i, k, j) collapse(3)
+    for( i = 0; i < nkernels; i++)
+    {
+      for( j = 0; j < nchannels; j++)
+      {
+        for( k = 0; k < kernel_order; k++)
+        {
+          newImage[j][k][i] = image[i][j][k];
+        }
+      }
+    }
+
+    #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
+    for ( m = 0; m < nkernels; m++ )
+    {
+      for ( h = 0; h < height; h++ )
+      {
+        for ( w = 0; w < width; w++ )
+        {
+          double sum = 0.0;
+          for ( c = 0; c < nchannels; c+=4 )
+          {
+            for ( x = 0; x < kernel_order; x++)
+            {
+              for ( y = 0; y < kernel_order; y+= 4 )
+              {
+                __m128 img = _mm_loadu_ps(&image[c][w+x][h+y]);
+                __m128 ker = _mm_loadu_ps(&kernels[m][c][x][y]);
+                __m128 sum4 = _mm_mul_ps(img, ker);
+                sum += hsum_ps_sse3(sum4);
+              }
+            }
+
+            for ( y = 0; y < kernel_order; y++ )
+            {
+              sum += image[c][w+x][h+y] * kernels[m][c][x][y];
+            }
+
+            output[m][w][h] = sum;
+          }
+        }
+      }
+    }
+
   }
 }
+
+
 
 int main(int argc, char ** argv)
 {
