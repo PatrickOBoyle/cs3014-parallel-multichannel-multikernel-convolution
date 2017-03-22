@@ -205,7 +205,7 @@ void check_result(float *** result, float *** control,
             sum_abs_diff, EPSILON);
   }
   else {
-    //printf("COMMENT: sum of absolute differences (%f)  within acceptable range (%f)\n", sum_abs_diff, EPSILON);
+    printf("COMMENT: sum of absolute differences (%f)  within acceptable range (%f)\n", sum_abs_diff, EPSILON);
   }
 }
 
