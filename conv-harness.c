@@ -250,7 +250,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
 
 
 
-  #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) if(width * height * nchannels > 3000)
+  #pragma omp parallel for private(w, h, m, c, x, y) shared(output, image, kernels) collapse(3) if(width * height * nchannels > 3000)
   for ( m = 0; m < nkernels; m++ )
   {
     for ( h = 0; h < height; h++ )
