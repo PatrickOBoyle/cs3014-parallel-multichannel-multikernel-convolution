@@ -293,7 +293,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
               for ( y = 0; y < kernel_order; y++ )
               {
                 __m128 img = _mm_loadu_ps(&image[w+x][h+y][c]);
-                __m128 ker = _mm_loadu_ps(&kernels[m][x][y][c]);
+                __m128 ker = _mm_loadu_ps(&newKernels[m][x][y][c]);
                 __m128 sum4 = _mm_mul_ps(img, ker);
                 sum += hsum_ps_sse3(sum4);
               }
@@ -343,7 +343,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
             {
               for ( y = 0; y < kernel_order; y+= 4 )
               {
-                __m128 img = _mm_loadu_ps(&image[c][w+x][h+y]);
+                __m128 img = _mm_loadu_ps(&newImage[c][w+x][h+y]);
                 __m128 ker = _mm_loadu_ps(&kernels[m][c][x][y]);
                 __m128 sum4 = _mm_mul_ps(img, ker);
                 sum += hsum_ps_sse3(sum4);
