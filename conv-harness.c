@@ -285,7 +285,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
       for ( h = 0; h < width; h++ )
       {
         double sum = 0.0;
-        for ( c = 0; c < nchannels; c+=4 )
+        for ( c = 0; c + 4 <= nchannels; c+=4 )
         {
           for ( x = 0; x < kernel_order; x++)
           {
