@@ -261,7 +261,7 @@ void team_conv(float *** image, float **** kernels, float *** output,
   if(nchannels >= 4){
     printf("vectorizing on nchannels\n");
     int i, j, k, l;
-    float **** newKernels = gen_random_4d_matrix(nkernels, kernel_order, kernel_order, nchannels);
+    float **** newKernels = gen_empty_4d_matrix(nkernels, kernel_order, kernel_order,nchannels);
     #pragma omp parallel for private(i, k, j, l) collapse(4)
     for( i = 0; i < nkernels; i++)
     {
@@ -318,13 +318,13 @@ void team_conv(float *** image, float **** kernels, float *** output,
     int i, j, k;
     float *** newImage = gen_random_3d_matrix( nchannels, width+kernel_order, height + kernel_order);
     #pragma omp parallel for private(i, k, j) collapse(3)
-    for( i = 0; i < nkernels; i++)
+    for( i = 0; i < nchannels; i++)
     {
-      for( j = 0; j < nchannels; j++)
+      for( j = 0; j < width+kernel_order; j++)
       {
-        for( k = 0; k < kernel_order; k++)
+        for( k = 0; k < height+kernel_order; k++)
         {
-          newImage[j][k][i] = image[i][j][k];
+          newImage[i][j][k] = image[j][k][i];
         }
       }
     }
